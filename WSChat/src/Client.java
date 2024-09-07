@@ -11,6 +11,8 @@ public class Client {
             Scanner reader = new Scanner(System.in);
             String name = reader.nextLine();
             System.out.println(String.format("%s connected", name));
+            Scanner readerFromServer = new Scanner(client.getInputStream());
+            System.out.println("The answer from server is: " + readerFromServer.nextLine());
             client.close();
         }
         catch (IOException e) {
