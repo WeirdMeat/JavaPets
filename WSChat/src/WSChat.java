@@ -2,8 +2,8 @@ import java.awt.*;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.security.NoSuchAlgorithmException;
-import java.util.logging.Logger;
+import java.util.Objects;
+import java.util.Scanner;
 
 public class WSChat {
 
@@ -33,10 +33,10 @@ public class WSChat {
                 ServerSocket server = new ServerSocket(80);
                 try {
                     System.out.println("Server has started on 127.0.0.1:80.\r\nWaiting for a connection…");
-                    server.accept();
-                    System.out.println("A client connected.");
-                    server.accept();
-                    System.out.println("Another client connected.");
+                    while (true) {
+                        Socket client = server.accept();
+                        System.out.println("A client connected. It's port is " + client.getPort());
+                    }
                 }
                 finally {
                     server.close();
@@ -47,13 +47,15 @@ public class WSChat {
         }
     }
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws RuntimeException {
 
         Thread serverThread = new Thread(new ServerRunnable());
-        Thread clientThread = new Thread(new ClientRunnable("Josh"));
-        Thread clientSecondThread = new Thread(new ClientRunnable("Mark"));
         serverThread.start();
-        clientThread.start();
-        clientSecondThread.start();
+        Scanner reader = new Scanner(System.in);
+        while (true) {
+            String name = reader.nextLine();
+            Thread clientThread = new Thread(new ClientRunnable(name));
+            clientThread.start();
+        }
     }
 }
