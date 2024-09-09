@@ -1,11 +1,12 @@
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class Server {
-
     static class ClientRunnable implements Runnable  {
         private final Socket client;
+        private String name;
         ClientRunnable (Socket client) {
             this.client = client;
         }
@@ -15,9 +16,18 @@ public class Server {
                 System.out.println("A client connected. It's port is " + client.getPort());
                 PrintWriter writer = new PrintWriter(client.getOutputStream(), true);
                 BufferedReader reader = new BufferedReader(new InputStreamReader(client.getInputStream()));
-                writer.println("This is a message sent to Mark");
-                String message = reader.readLine();
-                writer.println("You wrote " + message + ". What are you doing with your life. ");
+                writer.println("This is a message sent to " + reader.readLine());
+                new Thread(() -> {
+                    while (true) {
+                        String message = null;
+                        try {
+                            message = reader.readLine();
+                            writer.println(message);
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
+                        }
+                    }
+                }).start();
             }
             catch (IOException e) {
                 System.err.println("You got IOException: Wrong Input:  " + e.getMessage());
