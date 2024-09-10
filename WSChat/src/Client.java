@@ -4,11 +4,13 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.util.ArrayList;
 import java.util.Scanner;
 
 public class Client {
 
     public static void main(String[] args) throws RuntimeException {
+
         try {
             Scanner reader = new Scanner(System.in);
             System.out.println("Who");
@@ -39,4 +41,5 @@ public class Client {
             throw new RuntimeException(e);
         }
     }
+
 }
