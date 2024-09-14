@@ -6,17 +6,28 @@ import java.util.concurrent.locks.ReentrantLock;
 
 public class Server {
 
+    static final String ERASE_LINE = "\u001B[2K";
+    static final String CURSOR_UP_ONE = "\u001B[1A";
+    static int colorNumber = 0;
+    static final String ANSI_RESET = "\u001B[0m";
     static ArrayList<String> msgs = new ArrayList<>();
     static int endPointer = 0;
     static final ReentrantLock lock = new ReentrantLock();
 
+    static String getColor() {
+        colorNumber++;
+        return String.format("\u001B[3%dm", colorNumber);
+    }
+
     static class ClientRunnable implements Runnable  {
         private final Socket client;
+        private final String color;
         private int pointer;
         private String name;
         ClientRunnable (Socket client) {
             this.client = client;
             this.pointer = 0;
+            this.color = getColor();
         }
         @Override
         public void run() {
@@ -35,7 +46,9 @@ public class Server {
                             try {
                                 endPointer += 1;
                                 this.pointer += 1;
-                                msgs.add("[" + name + "]: " + message);
+                                msgs.add(color + "[" + name + "]: " + message + ANSI_RESET);
+                                System.out.println(color + "[" + name + "]: " + message + ANSI_RESET);
+                                writer.println(CURSOR_UP_ONE + ERASE_LINE + color + "[ME]: " + message + ANSI_RESET);
                             } finally {
                                 lock.unlock();
                             }
