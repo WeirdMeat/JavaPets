@@ -1,8 +1,6 @@
-import java.awt.*;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.Objects;
 import java.util.Scanner;
 
 public class WSChat {
@@ -14,10 +12,8 @@ public class WSChat {
         }
         @Override
         public void run() {
-            try {
-                Socket client = new Socket("localhost", 80);
-                System.out.println(String.format("%s connected", name));
-                client.close();
+            try (Socket client = new Socket("localhost", 80)) {
+                    System.out.println(String.format("%s connected", name));
             }
             catch (IOException e) {
                 System.err.println("You got IOException: Wrong Input:  " + e.getMessage());
@@ -30,16 +26,12 @@ public class WSChat {
         @Override
         public void run() {
             try {
-                ServerSocket server = new ServerSocket(80);
-                try {
+                try (ServerSocket server = new ServerSocket(80)) {
                     System.out.println("Server has started on 127.0.0.1:80.\r\nWaiting for a connection…");
                     while (true) {
                         Socket client = server.accept();
                         System.out.println("A client connected. It's port is " + client.getPort());
                     }
-                }
-                finally {
-                    server.close();
                 }
             } catch (IOException e) {
                 throw new RuntimeException(e);
@@ -51,11 +43,12 @@ public class WSChat {
 
         Thread serverThread = new Thread(new ServerRunnable());
         serverThread.start();
-        Scanner reader = new Scanner(System.in);
-        while (true) {
-            String name = reader.nextLine();
-            Thread clientThread = new Thread(new ClientRunnable(name));
-            clientThread.start();
+        try (Scanner reader = new Scanner(System.in)) {
+            while (true) {
+                String name = reader.nextLine();
+                Thread clientThread = new Thread(new ClientRunnable(name));
+                clientThread.start();
+            }
         }
     }
 }

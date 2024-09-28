@@ -39,7 +39,7 @@ public class Server {
                 writer.println("This is a message sent to " + name);
                 new Thread(() -> {
                     while (true) {
-                        String message = null;
+                        String message;
                         try {
                             message = reader.readLine();
                             lock.lock();
@@ -52,8 +52,6 @@ public class Server {
                             } finally {
                                 lock.unlock();
                             }
-
-
                         } catch (IOException e) {
                             throw new RuntimeException(e);
                         }
@@ -76,17 +74,13 @@ public class Server {
     }
 
     public static void main(String[] args) throws RuntimeException {
-        try {
-            ServerSocket server = new ServerSocket(80);
-            try {
-                System.out.println("Server has started on 127.0.0.1:80.\r\nWaiting for a connection…");
-                while (true) {
-                    Socket client = server.accept();
-                    Thread clientThread = new Thread(new ClientRunnable(client));
-                    clientThread.start();
-                }
-            } finally {
-                server.close();
+
+        try (ServerSocket server = new ServerSocket(80)) {
+            System.out.println("Server has started on 127.0.0.1:80.\r\nWaiting for a connection…");
+            while (true) {
+                Socket client = server.accept();
+                Thread clientThread = new Thread(new ClientRunnable(client));
+                clientThread.start();
             }
         } catch (IOException e) {
             throw new RuntimeException(e);

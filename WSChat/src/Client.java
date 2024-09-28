@@ -1,4 +1,3 @@
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -10,12 +9,10 @@ public class Client {
 
     public static void main(String[] args) throws RuntimeException {
 
-        try {
-            Scanner reader = new Scanner(System.in);
+        try (Scanner reader = new Scanner(System.in)) {
             System.out.println("Who");
             String name = reader.nextLine();
-            Socket client = new Socket("localhost", 80);
-            try {
+            try (Socket client = new Socket("localhost", 80)) {
                 BufferedReader readerFromServer = new BufferedReader(new InputStreamReader(client.getInputStream()));
                 PrintWriter writerToServer = new PrintWriter(client.getOutputStream(), true);
                 writerToServer.println(name);
@@ -35,8 +32,6 @@ public class Client {
                     String message = reader.nextLine();
                     writerToServer.println(message);
                 }
-            } finally {
-                client.close();
             }
         }
         catch (IOException e) {
